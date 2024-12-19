@@ -65,20 +65,30 @@ class SaveImageToS3:
             img_byte_arr = io.BytesIO()
             if format in ["jpg", "jpeg"]:
                 img.save(img_byte_arr,
-                         quality=quality, optimize=optimize_image, dpi=(dpi, dpi))
+                         format=format,
+                         quality=quality, 
+                         optimize=optimize_image, 
+                         dpi=(dpi, dpi))
             elif format == 'webp':
                 img.save(img_byte_arr,
-                         quality=quality, lossless=lossless_webp)
+                         format=format,
+                         quality=quality, 
+                         lossless=lossless_webp)
             elif format == 'png':
                 img.save(img_byte_arr,
-                        optimize=optimize_image)
+                         format=format,
+                         optimize=optimize_image)
             elif format == 'bmp':
-                img.save(img_byte_arr)
+                img.save(img_byte_arr,
+                         format=format)
             elif format == 'tiff':
                 img.save(img_byte_arr,
-                         quality=quality, optimize=optimize_image)
+                         format=format,
+                         quality=quality, 
+                         optimize=optimize_image)
             else:
                 img.save(img_byte_arr,
+                         format=format,
                          optimize=optimize_image)
             img_byte_arr.seek(0)  # Reset buffer position
 
