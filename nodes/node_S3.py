@@ -40,9 +40,11 @@ class SaveImageToS3:
                              "session_token": ("STRING", {"multiline": False, "default": ""}),
                              "s3_bucket": ("STRING", {"multiline": False, "default": "s3_bucket"}),
                              "pathname": ("STRING", {"multiline": False, "default": "pathname for file"}),
-                             "format": ("STRING", {"multiline": False, "default": "JPEG"}),
+                             "format": (['png', 'jpg', 'jpeg', 'gif', 'tiff', 'webp', 'bmp'], ),
                              "quality": ("INT", {"default": 75, "min": 1, "max": 100}),
-                             "optimize": ("BOOLEAN", {"default": False})
+                             "optimize": ("BOOLEAN", {"default": False}),
+                             "lossless_webp": ("BOOLEAN", {"default": False}),
+                             "dpi": ("INT", {"default": 300, "min": 1, "max": 2400, "step": 1}),
                              },
                 "hidden": {"prompt": "PROMPT", "extra_pnginfo": "EXTRA_PNGINFO"},
                 }
@@ -51,21 +53,33 @@ class SaveImageToS3:
     CATEGORY = "image"
     OUTPUT_NODE = True
 
-    def save_image_to_s3(self, images, region, aws_ak, aws_sk, session_token, s3_bucket, pathname, format, quality, optimize, prompt=None, extra_pnginfo=None):
+    def save_image_to_s3(self, images, region, aws_ak, aws_sk, session_token, s3_bucket, pathname, format, quality, lossless_webp, optimize, dpi, prompt=None, extra_pnginfo=None):
         client = awss3_init_client(region, aws_ak, aws_sk, session_token)
         results = list()
+        lossless_webp = (lossless_webp == "true")
+        optimize_image = (optimize_image == "true")
+
         for (batch_number, image) in enumerate(images):
             i = 255. * image.cpu().numpy()
             img = Image.fromarray(np.clip(i, 0, 255).astype(np.uint8))
             img_byte_arr = io.BytesIO()
-            params = {
-                'format': format,
-            }
-            if quality is not None:
-                params['quality'] = quality
-            if optimize is not None:
-                params['optimize'] = optimize
-            img.save(img_byte_arr, **params)
+            if format in ["jpg", "jpeg"]:
+                img.save(img_byte_arr,
+                         quality=quality, optimize=optimize_image, dpi=(dpi, dpi))
+            elif format == 'webp':
+                img.save(img_byte_arr,
+                         quality=quality, lossless=lossless_webp)
+            elif format == 'png':
+                img.save(img_byte_arr,
+                        optimize=optimize_image)
+            elif format == 'bmp':
+                img.save(img_byte_arr)
+            elif format == 'tiff':
+                img.save(img_byte_arr,
+                         quality=quality, optimize=optimize_image)
+            else:
+                img.save(img_byte_arr,
+                         optimize=optimize_image)
             img_byte_arr.seek(0)  # Reset buffer position
 
             awss3_save_file(client, s3_bucket, "%s_%i"%(pathname, batch_number), img_byte_arr)
