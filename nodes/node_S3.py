@@ -55,7 +55,7 @@ class SaveImageToS3:
             i = 255. * image.cpu().numpy()
             img = Image.fromarray(np.clip(i, 0, 255).astype(np.uint8))
             img_byte_arr = io.BytesIO()
-            img.save(img_byte_arr, format='WEBP', quality=95, optimize=True)
+            img.save(img_byte_arr, format='WebP', quality=75)
             img_byte_arr.seek(0)  # Reset buffer position
 
             awss3_save_file(client, s3_bucket, "%s_%i.jpeg"%(pathname, batch_number), img_byte_arr)
