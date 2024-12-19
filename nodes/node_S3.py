@@ -58,9 +58,9 @@ class SaveImageToS3:
             img.save(img_byte_arr, format='WebP', quality=75)
             img_byte_arr.seek(0)  # Reset buffer position
 
-            awss3_save_file(client, s3_bucket, "%s_%i.jpeg"%(pathname, batch_number), img_byte_arr)
+            awss3_save_file(client, s3_bucket, "%s_%i"%(pathname, batch_number), img_byte_arr)
             results.append({
-                "filename": "%s_%i.jpeg"%(pathname, batch_number),
+                "filename": "%s_%i"%(pathname, batch_number),
                 "subfolder": "",
                 "type": "output"
             })
