@@ -57,7 +57,7 @@ class SaveImageToS3:
         client = awss3_init_client(region, aws_ak, aws_sk, session_token)
         results = list()
         lossless_webp = (lossless_webp == "true")
-        optimize_image = (optimize_image == "true")
+        optimize_image = (optimize == "true")
 
         for (batch_number, image) in enumerate(images):
             i = 255. * image.cpu().numpy()
