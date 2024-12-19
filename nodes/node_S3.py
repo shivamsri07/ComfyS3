@@ -40,7 +40,7 @@ class SaveImageToS3:
                              "session_token": ("STRING", {"multiline": False, "default": ""}),
                              "s3_bucket": ("STRING", {"multiline": False, "default": "s3_bucket"}),
                              "pathname": ("STRING", {"multiline": False, "default": "pathname for file"}),
-                             "format": (['png', 'jpg', 'jpeg', 'gif', 'tiff', 'webp', 'bmp'], ),
+                             "format": (['PNG', 'JPEG', 'WebP'], ),
                              "quality": ("INT", {"default": 75, "min": 1, "max": 100}),
                              "optimize": ("BOOLEAN", {"default": False}),
                              "lossless_webp": ("BOOLEAN", {"default": False}),
@@ -63,30 +63,18 @@ class SaveImageToS3:
             i = 255. * image.cpu().numpy()
             img = Image.fromarray(np.clip(i, 0, 255).astype(np.uint8))
             img_byte_arr = io.BytesIO()
-            if format in ["jpg", "jpeg"]:
+            if format == 'JPEG':
                 img.save(img_byte_arr,
                          format=format,
                          quality=quality, 
                          optimize=optimize_image, 
                          dpi=(dpi, dpi))
-            elif format == 'webp':
+            elif format == 'WebP':
                 img.save(img_byte_arr,
                          format=format,
                          quality=quality, 
                          lossless=lossless_webp)
-            elif format == 'png':
-                img.save(img_byte_arr,
-                         format=format,
-                         optimize=optimize_image)
-            elif format == 'bmp':
-                img.save(img_byte_arr,
-                         format=format)
-            elif format == 'tiff':
-                img.save(img_byte_arr,
-                         format=format,
-                         quality=quality, 
-                         optimize=optimize_image)
-            else:
+            elif format == 'PNG':
                 img.save(img_byte_arr,
                          format=format,
                          optimize=optimize_image)
